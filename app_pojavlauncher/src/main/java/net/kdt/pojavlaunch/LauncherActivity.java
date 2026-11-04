@@ -176,6 +176,16 @@ public class LauncherActivity extends BaseActivity {
         return false;
     }
 
+    // Starlight: ¿hay alguna cuenta guardada?
+    private boolean starlightHasAccount() {
+        try {
+            String[] files = new java.io.File(Tools.DIR_ACCOUNT_NEW).list();
+            if (files == null) return false;
+            for (String f : files) if (f.endsWith(".json")) return true;
+        } catch (Exception ignored) {}
+        return false;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -190,6 +200,10 @@ public class LauncherActivity extends BaseActivity {
                     .setReorderingAllowed(true)
                     .addToBackStack("ROOT")
                     .add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();
+            // Starlight: al abrir sin ninguna cuenta, mostrar primero la pantalla de login
+            if (!starlightHasAccount()) {
+                Tools.swapFragment(this, SelectAuthFragment.class, SelectAuthFragment.TAG, null);
+            }
         }
 
 

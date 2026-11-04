@@ -1,55 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<!-- Pantalla de login Starlight (reusa la auth de Pojav: botones Microsoft / No-Premium) -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:background="@color/background_app"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:paddingHorizontal="@dimen/fragment_padding_medium">
+    android:fillViewport="true"
+    android:background="@color/background_app">
 
-    <View
-        android:id="@+id/login_menu"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_200sdp"
-
-        android:background="@drawable/background_card"
-        android:translationZ="-1dp"
-
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
-    <com.kdt.mcgui.MineButton
-        android:id="@+id/button_microsoft_authentication"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Microsoft Account"
-        android:textSize="@dimen/_12ssp"
-        android:layout_marginHorizontal="@dimen/_25sdp"
-        android:layout_marginBottom="@dimen/_20sdp"
-        app:layout_constraintBottom_toTopOf="@+id/button_local_authentication"
-        app:layout_constraintEnd_toEndOf="@+id/login_menu"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/login_menu"
-        app:layout_constraintTop_toTopOf="@id/login_menu"
-        app:layout_constraintVertical_chainStyle="packed"
-        />
+        android:minHeight="match_parent"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingHorizontal="@dimen/_70sdp"
+        android:paddingVertical="@dimen/_18sdp">
 
-    <com.kdt.mcgui.MineButton
-        android:id="@+id/button_local_authentication"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Local account"
-        android:textSize="@dimen/_12ssp"
-        android:layout_marginHorizontal="@dimen/_25sdp"
-        app:layout_constraintBottom_toBottomOf="@id/login_menu"
-        app:layout_constraintEnd_toEndOf="@+id/login_menu"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/login_menu"
-        app:layout_constraintTop_toBottomOf="@+id/button_microsoft_authentication" />
+        <ImageView
+            android:layout_width="@dimen/_92sdp"
+            android:layout_height="@dimen/_92sdp"
+            android:contentDescription="Starlight"
+            android:src="@drawable/starlight_logo" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:text="STARLIGHT"
+            android:textColor="@color/primary_text"
+            android:textStyle="bold"
+            android:letterSpacing="0.34"
+            android:textSize="@dimen/_22ssp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_3sdp"
+            android:text="SERVIDOR COBBLEMON · EXPLORA EL UNIVERSO"
+            android:textColor="@color/starlight_accent"
+            android:textStyle="bold"
+            android:letterSpacing="0.12"
+            android:textSize="@dimen/_9ssp" />
+
+        <com.kdt.mcgui.MineButton
+            android:id="@+id/button_microsoft_authentication"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_22sdp"
+            android:text="Iniciar sesión con Microsoft"
+            android:textSize="@dimen/_12ssp" />
+
+        <com.kdt.mcgui.MineButton
+            android:id="@+id/button_local_authentication"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:text="Jugar sin premium"
+            android:textSize="@dimen/_12ssp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_14sdp"
+            android:text="starlight.sarl · No afiliado a Mojang ni Microsoft"
+            android:textColor="@color/secondary_text"
+            android:textSize="@dimen/_8ssp" />
+
+    </LinearLayout>
+</ScrollView>
