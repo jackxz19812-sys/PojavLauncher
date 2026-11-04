@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import com.kdt.mcgui.mcVersionSpinner;
 
 import net.kdt.pojavlaunch.CustomControlsActivity;
+import net.kdt.pojavlaunch.PojavProfile;
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
@@ -25,6 +27,7 @@ import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
+import net.kdt.pojavlaunch.value.MinecraftAccount;
 
 import java.io.File;
 
@@ -50,7 +53,8 @@ public class MainMenuFragment extends Fragment {
         Button mPlayButton = view.findViewById(R.id.play_button);
         mVersionSpinner = view.findViewById(R.id.mc_version_spinner);
 
-        mNewsButton.setOnClickListener(v -> Tools.openURL(requireActivity(), Tools.URL_HOME));
+        // Starlight: el botón Web abre la web del servidor
+        mNewsButton.setOnClickListener(v -> Tools.openURL(requireActivity(), "https://starlight.sarl/"));
         mDiscordButton.setOnClickListener(v -> Tools.openURL(requireActivity(), getString(R.string.discord_invite)));
         mCustomControlButton.setOnClickListener(v -> startActivity(new Intent(requireContext(), CustomControlsActivity.class)));
         mInstallJarButton.setOnClickListener(v -> runInstallerWithConfirmation(false));
@@ -94,6 +98,23 @@ public class MainMenuFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mVersionSpinner.reloadProfiles();
+        updateWelcome();
+    }
+
+    // Starlight: saludo con el nombre de la cuenta activa
+    private void updateWelcome() {
+        View root = getView();
+        if (root == null) return;
+        TextView welcome = root.findViewById(R.id.sl_welcome);
+        if (welcome == null) return;
+        try {
+            MinecraftAccount account = PojavProfile.getCurrentProfileContent(requireContext(), null);
+            if (account != null && Tools.isValidString(account.username)) {
+                welcome.setText("Bienvenido de vuelta, " + account.username);
+                return;
+            }
+        } catch (Exception ignored) {}
+        welcome.setText("Bienvenido de vuelta, entrenador");
     }
 
     private void runInstallerWithConfirmation(boolean isCustomArgs) {

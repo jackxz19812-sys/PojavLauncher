@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Barra inferior: se funde con la galaxia -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <gradient android:angle="90" android:startColor="#F5080511" android:centerColor="#D9080511" android:endColor="#00080511" />
+</shape>
