@@ -73,6 +73,10 @@ public class LauncherActivity extends BaseActivity {
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
             mSettingsButton.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), f instanceof MainMenuFragment
                     ? R.drawable.ic_menu_settings : R.drawable.ic_menu_home));
+            // Starlight: oculta la barra superior (cuenta + ajustes) en la pantalla de login
+            boolean isLogin = f instanceof SelectAuthFragment;
+            if (mAccountSpinner != null) mAccountSpinner.setVisibility(isLogin ? View.GONE : View.VISIBLE);
+            if (mSettingsButton != null) mSettingsButton.setVisibility(isLogin ? View.GONE : View.VISIBLE);
         }
     };
 
