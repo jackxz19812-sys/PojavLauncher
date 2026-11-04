@@ -30,39 +30,22 @@ jobs:
 
       - name: Get LTW
         run: |
-          apt update && apt install wget
           cd app_pojavlauncher/libs
           wget https://github.com/PojavLauncherTeam/LTW/releases/latest/download/ltw-release.aar
 
-      - name: Get JRE 8
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: build.yml
-          path: app_pojavlauncher/src/main/assets/components/jre
-          workflow_conclusion: success
-          repo: PojavLauncherTeam/android-openjdk-build-multiarch
-          branch: buildjre8
-          name: jre8-pojav
-
-      - name: Get JRE17
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: build.yml
-          path: app_pojavlauncher/src/main/assets/components/jre-new
-          workflow_conclusion: success
-          repo: PojavLauncherTeam/android-openjdk-build-multiarch
-          branch: buildjre17-21
-          name: jre17-pojav
-
-      - name: Get JRE21
-        uses: dawidd6/action-download-artifact@v9
-        with:
-          workflow: build.yml
-          path: app_pojavlauncher/src/main/assets/components/jre-21
-          workflow_conclusion: success
-          repo: PojavLauncherTeam/android-openjdk-build-multiarch
-          branch: buildjre17-21
-          name: jre21-pojav
+      # Los artefactos de JRE del repo oficial expiraron; los sacamos del APK oficial (releases, no expiran)
+      - name: Get JREs from official APK
+        run: |
+          wget -q "https://github.com/PojavLauncherTeam/PojavLauncher/releases/download/gladiolus/PojavLauncher.apk" -O /tmp/pojav.apk
+          mkdir -p /tmp/jre_extract
+          cd /tmp/jre_extract
+          unzip -q /tmp/pojav.apk "assets/components/jre/*" "assets/components/jre-new/*" "assets/components/jre-21/*"
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p app_pojavlauncher/src/main/assets/components
+          cp -r /tmp/jre_extract/assets/components/jre     app_pojavlauncher/src/main/assets/components/jre
+          cp -r /tmp/jre_extract/assets/components/jre-new app_pojavlauncher/src/main/assets/components/jre-new
+          cp -r /tmp/jre_extract/assets/components/jre-21  app_pojavlauncher/src/main/assets/components/jre-21
+          ls -la app_pojavlauncher/src/main/assets/components/
 
       - uses: gradle/actions/setup-gradle@v4
         with:
