@@ -42,7 +42,8 @@ public class LocalLoginFragment extends Fragment {
             ExtraCore.setValue(ExtraConstants.MOJANG_LOGIN_TODO, new String[]{
                     mUsernameEditText.getText().toString(), "" });
 
-            Tools.swapFragment(requireActivity(), MainMenuFragment.class, MainMenuFragment.TAG, null);
+            // Starlight: volver al menú raíz (como el login de Microsoft) en vez de apilar otro menú
+            Tools.backToMainMenu(requireActivity());
         });
     }
 

@@ -204,8 +204,10 @@ public class LauncherActivity extends BaseActivity {
                     .setReorderingAllowed(true)
                     .addToBackStack("ROOT")
                     .add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();
-            // Starlight: al abrir sin ninguna cuenta, mostrar primero la pantalla de login
+            // Starlight: al abrir sin ninguna cuenta, mostrar primero la pantalla de login.
+            // Se aplica antes el menú raíz para que el login lo reemplace limpio (sin pantallas encimadas).
             if (!starlightHasAccount()) {
+                fragmentManager.executePendingTransactions();
                 Tools.swapFragment(this, SelectAuthFragment.class, SelectAuthFragment.TAG, null);
             }
         }
