@@ -130,7 +130,7 @@ public class MainMenuFragment extends Fragment {
                     status.setText(ok ? "✓ " + message : "⚠ " + message);
                     status.setTextColor(ok ? 0xFFD8B4FE : 0xFFF87171);
                 }
-                mVersionSpinner.reloadProfiles();
+                mVersionSpinner.reloadAndSelectCurrent();
                 if (!ok) Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
             }
         });

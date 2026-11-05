@@ -94,6 +94,14 @@ public class mcVersionSpinner extends ExtendedTextView {
         mProfileAdapter.reloadProfiles();
     }
 
+    /** Starlight: recarga perfiles y selecciona el guardado en preferencias. */
+    public void reloadAndSelectCurrent(){
+        mProfileAdapter.reloadProfiles();
+        int idx = mProfileAdapter.resolveProfileIndex(
+                LauncherPreferences.DEFAULT_PREF.getString(LauncherPreferences.PREF_KEY_CURRENT_PROFILE,""));
+        if(idx >= 0) setProfileSelection(idx);
+    }
+
     /** Initialize various behaviors */
     private void init(){
         // Setup various attributes
