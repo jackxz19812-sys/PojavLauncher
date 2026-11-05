@@ -130,6 +130,14 @@
                         android:text="● Consultando servidor…"
                         android:textColor="@color/secondary_text"
                         android:textSize="@dimen/_9ssp" />
+                    <TextView
+                        android:id="@+id/sl_modpack_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:text="Comprobando modpack…"
+                        android:textColor="@color/secondary_text"
+                        android:textSize="@dimen/_9ssp" />
                 </LinearLayout>
             </LinearLayout>
 

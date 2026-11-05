@@ -44,6 +44,7 @@ import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
+import net.kdt.pojavlaunch.starlight.StarlightModpack;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 import net.kdt.pojavlaunch.value.MinecraftAccount;
@@ -104,6 +105,35 @@ public class MainMenuFragment extends Fragment {
         });
 
         loadStarlightData(view);
+        startModpackSync(view);
+    }
+
+    // Starlight: instala/actualiza el modpack del servidor y deja el perfil listo para JUGAR
+    private void startModpackSync(View root) {
+        TextView status = root.findViewById(R.id.sl_modpack_status);
+        if (StarlightModpack.isRunning()) {
+            if (status != null) status.setText("Instalando modpack… (progreso abajo)");
+            return;
+        }
+        StarlightModpack.sync(requireContext(), new StarlightModpack.Listener() {
+            @Override
+            public void onStatus(String text) {
+                if (!isAdded() || status == null) return;
+                status.setText(text);
+                status.setTextColor(ContextCompat.getColor(requireContext(), R.color.secondary_text));
+            }
+
+            @Override
+            public void onDone(boolean ok, String message) {
+                if (!isAdded()) return;
+                if (status != null) {
+                    status.setText(ok ? "✓ " + message : "⚠ " + message);
+                    status.setTextColor(ok ? 0xFFD8B4FE : 0xFFF87171);
+                }
+                mVersionSpinner.reloadProfiles();
+                if (!ok) Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private File getCurrentProfileDirectory() {

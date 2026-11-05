@@ -134,6 +134,11 @@ public class ModrinthApi implements ModpackApi{
         return null;
     }
 
+    /** Starlight: instala un .mrpack ya descargado en una carpeta de instancia (sin crear perfil). */
+    public ModLoader installLocalMrpack(File mrpackFile, File instanceDestination) throws IOException {
+        return installMrpack(mrpackFile, instanceDestination);
+    }
+
     private ModLoader installMrpack(File mrpackFile, File instanceDestination) throws IOException {
         try (ZipFile modpackZipFile = new ZipFile(mrpackFile)){
             ModrinthIndex modrinthIndex = Tools.GLOBAL_GSON.fromJson(
