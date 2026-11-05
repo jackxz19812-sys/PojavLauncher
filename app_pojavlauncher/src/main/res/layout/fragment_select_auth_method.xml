@@ -74,7 +74,7 @@
                     android:drawableStart="@drawable/ic_sl_microsoft"
                     android:paddingStart="@dimen/_16sdp"
                     android:paddingEnd="@dimen/_26sdp"
-                    android:text="Iniciar sesión con Microsoft" />
+                    android:text="Entrar con Microsoft" />
 
                 <com.kdt.mcgui.MineButton
                     android:id="@+id/button_local_authentication"

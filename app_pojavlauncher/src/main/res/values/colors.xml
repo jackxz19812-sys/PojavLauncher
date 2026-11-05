@@ -13,6 +13,7 @@
     <color name="background_overlay">#2A1A38</color>
     <color name="background_status_bar">#140B1E</color>
     <color name="background_bottom_bar">#140B1E</color>
+    <color name="sl_topbar">#A6100818</color>
 
     <color name="primary_text">#FFFFFF</color>
     <color name="secondary_text">#B9A6C4</color>

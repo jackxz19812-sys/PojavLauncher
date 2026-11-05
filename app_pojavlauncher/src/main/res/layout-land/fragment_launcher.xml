@@ -6,19 +6,7 @@
     android:id="@+id/fragment_menu_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_app">
-
-    <ImageView
-        android:id="@+id/sl_background"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:importantForAccessibility="no"
-        android:scaleType="centerCrop"
-        android:src="@drawable/sl_galaxy"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:background="@android:color/transparent">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/sl_split"
@@ -118,6 +106,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Cobblemon · Minecraft 1.21.1"
+                    android:textColor="@color/secondary_text"
+                    android:textSize="@dimen/_8ssp" />
+                <TextView
+                    android:id="@+id/sl_server_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:fontFamily="@font/noto_sans_bold"
+                    android:text="● Consultando servidor…"
                     android:textColor="@color/secondary_text"
                     android:textSize="@dimen/_8ssp" />
             </LinearLayout>
@@ -250,6 +247,26 @@
                     android:textAllCaps="false"
                     android:textColor="@color/primary_text" />
             </LinearLayout>
+
+            <!-- Novedades: se rellenan desde el panel de Starlight (MainMenuFragment) -->
+            <TextView
+                android:id="@+id/sl_news_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:layout_marginBottom="@dimen/_2sdp"
+                android:fontFamily="@font/noto_sans_bold"
+                android:letterSpacing="0.25"
+                android:text="NOVEDADES"
+                android:textColor="@color/starlight_accent"
+                android:textSize="@dimen/_8ssp"
+                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/sl_news_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
         </LinearLayout>
     </ScrollView>
 
@@ -266,10 +283,13 @@
     <com.kdt.mcgui.mcVersionSpinner
         android:id="@+id/mc_version_spinner"
         android:layout_width="0dp"
-        android:layout_height="@dimen/_32sdp"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="@android:color/transparent"
+        android:layout_height="@dimen/_34sdp"
+        android:layout_marginStart="@dimen/_10sdp"
+        android:layout_marginEnd="@dimen/_6sdp"
+        android:layout_marginBottom="@dimen/_8sdp"
+        android:background="@drawable/sl_card"
+        android:paddingStart="@dimen/_6sdp"
+        android:paddingEnd="@dimen/_8sdp"
         android:drawableEnd="@drawable/spinner_arrow"
         app:drawableEndPadding="@dimen/_1sdp"
         app:drawableEndSize="@dimen/_12sdp"
