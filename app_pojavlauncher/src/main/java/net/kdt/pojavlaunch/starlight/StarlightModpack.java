@@ -112,20 +112,21 @@ public final class StarlightModpack {
         } catch (Exception e) {
             // sin internet: si ya está instalado se puede jugar igual
             if (!installed) throw new IOException("No se pudo contactar con el panel de Starlight. Revisa tu conexión.");
-            removeIncompatibleMods(instance);
+            setupRenderer(ctx, instance);
             selectProfile();
             tuneForDevice(ctx, instance);
             return "Modpack v" + prefs.getString(PREF_VERSION, "?") + " (sin conexión)";
         }
 
-        String source = url + "#" + version;
+        // "#r2": fuerza una reinstalación para recuperar Sodium/Iris quitados en la versión anterior
+        String source = url + "#" + version + "#r2";
         if (!installed || !source.equals(prefs.getString(PREF_SOURCE, null))) {
             status.post(installed ? "Actualizando modpack a v" + version + "…" : "Instalando modpack v" + version + "…");
             install(ctx, url, instance);
             prefs.edit().putString(PREF_SOURCE, source).putString(PREF_VERSION, version).apply();
         }
 
-        removeIncompatibleMods(instance);
+        setupRenderer(ctx, instance);
         selectProfile();
         tuneForDevice(ctx, instance);
         ensureServerListed(new File(instance, "servers.dat"));
@@ -197,7 +198,90 @@ public final class StarlightModpack {
         }
     }
 
-    /** Mods de PC que no funcionan en Android (Sodium se niega a arrancar en Pojav). */
+    private static final String LTW = "opengles3_ltw";
+    private static final String SODIUM_CHECK_CLASS =
+            "net/caffeinemc/mods/sodium/client/compatibility/checks/PostLaunchChecks.class";
+
+    /**
+     * Sodium necesita OpenGL 3.3: con el renderer LTW (GL 3.3 sobre GLES 3) funciona en Android.
+     * Si el dispositivo lo soporta, el perfil usa LTW y se desactiva el bloqueo de Sodium a Pojav;
+     * si no (gl4es = GL 2.1), se quitan Sodium/Iris para que el juego pueda arrancar.
+     */
+    private static void setupRenderer(Context ctx, File instance) {
+        boolean ltw;
+        try { ltw = Tools.checkRendererCompatible(ctx, LTW); } catch (Throwable t) { ltw = false; }
+        Log.i(TAG, "Renderer LTW disponible: " + ltw);
+        try {
+            LauncherProfiles.load();
+            MinecraftProfile p = LauncherProfiles.mainProfileJson.profiles.get(PROFILE_KEY);
+            if (p != null) {
+                p.pojavRendererName = ltw ? LTW : null;
+                LauncherProfiles.write();
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "No se pudo fijar el renderer del perfil", e);
+        }
+        if (!ltw) { removeIncompatibleMods(instance); return; }
+        File[] mods = new File(instance, "mods").listFiles();
+        if (mods == null) return;
+        for (File f : mods) {
+            String n = f.getName().toLowerCase(Locale.ROOT);
+            if (n.startsWith("sodium") && n.endsWith(".jar") && !n.startsWith("sodium-extra")) {
+                try { patchSodium(f); } catch (Exception e) { Log.w(TAG, "No se pudo parchear " + f.getName(), e); }
+            }
+        }
+    }
+
+    /** Sodium detecta Pojav por la variable POJAV_RENDERER; la renombramos (misma longitud) en esa clase. */
+    private static void patchSodium(File jar) throws IOException {
+        byte[] from = "POJAV_RENDERER".getBytes(StandardCharsets.US_ASCII);
+        byte[] to   = "SL_NOT_PRESENT".getBytes(StandardCharsets.US_ASCII);
+        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(jar)) {
+            java.util.zip.ZipEntry e = zf.getEntry(SODIUM_CHECK_CLASS);
+            if (e == null) return;
+            byte[] cls;
+            try (InputStream in = zf.getInputStream(e)) { cls = readAll(in); }
+            if (indexOf(cls, from) < 0) return; // ya parcheado
+        }
+        File tmp = new File(jar.getPath() + ".tmp");
+        try (java.util.zip.ZipFile zf = new java.util.zip.ZipFile(jar);
+             java.util.zip.ZipOutputStream out = new java.util.zip.ZipOutputStream(new FileOutputStream(tmp))) {
+            java.util.Enumeration<? extends java.util.zip.ZipEntry> en = zf.entries();
+            while (en.hasMoreElements()) {
+                java.util.zip.ZipEntry e = en.nextElement();
+                byte[] data;
+                try (InputStream in = zf.getInputStream(e)) { data = readAll(in); }
+                if (e.getName().equals(SODIUM_CHECK_CLASS)) {
+                    int i;
+                    while ((i = indexOf(data, from)) >= 0) System.arraycopy(to, 0, data, i, to.length);
+                }
+                out.putNextEntry(new java.util.zip.ZipEntry(e.getName()));
+                out.write(data);
+                out.closeEntry();
+            }
+        }
+        if (!jar.delete() || !tmp.renameTo(jar)) throw new IOException("No se pudo reemplazar " + jar.getName());
+        Log.i(TAG, "Sodium parcheado para Android: " + jar.getName());
+    }
+
+    private static byte[] readAll(InputStream in) throws IOException {
+        ByteArrayOutputStream bo = new ByteArrayOutputStream();
+        byte[] buf = new byte[16384];
+        int r;
+        while ((r = in.read(buf)) > 0) bo.write(buf, 0, r);
+        return bo.toByteArray();
+    }
+
+    private static int indexOf(byte[] data, byte[] pat) {
+        outer:
+        for (int i = 0; i + pat.length <= data.length; i++) {
+            for (int j = 0; j < pat.length; j++) if (data[i + j] != pat[j]) continue outer;
+            return i;
+        }
+        return -1;
+    }
+
+    /** Sin LTW: mods que requieren OpenGL 3.3 y no pueden funcionar con gl4es. */
     private static void removeIncompatibleMods(File instance) {
         File[] mods = new File(instance, "mods").listFiles();
         if (mods == null) return;
