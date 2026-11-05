@@ -47,7 +47,9 @@ import java.util.Map;
 public final class StarlightModpack {
     private static final String TAG = "Starlight";
     public static final String MANIFEST_URL = "https://starlight.sarl/api/launcher/manifest";
-    public static final String PROFILE_KEY = "starlight";
+    // Pojav renombra a un UUID aleatorio cualquier clave que no sea UUID, así que usamos uno fijo.
+    public static final String PROFILE_KEY = "5a7f1e9c-0b1d-4c3a-9e2f-57a71167c0b1";
+    private static final String PROFILE_GAMEDIR = "./custom_instances/starlight";
     private static final String INSTANCE = "custom_instances/starlight";
     private static final String SERVER_NAME = "Starlight";
     private static final String SERVER_IP = "starlight.sarl";
@@ -110,6 +112,7 @@ public final class StarlightModpack {
         } catch (Exception e) {
             // sin internet: si ya está instalado se puede jugar igual
             if (!installed) throw new IOException("No se pudo contactar con el panel de Starlight. Revisa tu conexión.");
+            removeIncompatibleMods(instance);
             selectProfile();
             tuneForDevice(ctx, instance);
             return "Modpack v" + prefs.getString(PREF_VERSION, "?") + " (sin conexión)";
@@ -122,6 +125,7 @@ public final class StarlightModpack {
             prefs.edit().putString(PREF_SOURCE, source).putString(PREF_VERSION, version).apply();
         }
 
+        removeIncompatibleMods(instance);
         selectProfile();
         tuneForDevice(ctx, instance);
         ensureServerListed(new File(instance, "servers.dat"));
@@ -167,21 +171,54 @@ public final class StarlightModpack {
         if (missing[0]) throw new IOException("No se encontró Fabric " + loader.modLoaderVersion + " para Minecraft " + loader.minecraftVersion);
     }
 
+    /** Deja un único perfil de Starlight con la clave fija (migra/borra duplicados de versiones anteriores). */
     private static boolean profileExists() {
         try {
             LauncherProfiles.load();
-            return LauncherProfiles.mainProfileJson.profiles.containsKey(PROFILE_KEY);
+            Map<String, MinecraftProfile> profiles = LauncherProfiles.mainProfileJson.profiles;
+            MinecraftProfile keep = profiles.get(PROFILE_KEY);
+            boolean changed = false;
+            for (String key : new java.util.ArrayList<>(profiles.keySet())) {
+                if (key.equals(PROFILE_KEY)) continue;
+                MinecraftProfile p = profiles.get(key);
+                if (p != null && PROFILE_GAMEDIR.equals(p.gameDir)) {
+                    if (keep == null) keep = p;
+                    profiles.remove(key);
+                    changed = true;
+                }
+            }
+            if (changed) {
+                profiles.put(PROFILE_KEY, keep);
+                LauncherProfiles.write();
+            }
+            return keep != null;
         } catch (Exception e) {
             return false;
         }
     }
 
+    /** Mods de PC que no funcionan en Android (Sodium se niega a arrancar en Pojav). */
+    private static void removeIncompatibleMods(File instance) {
+        File[] mods = new File(instance, "mods").listFiles();
+        if (mods == null) return;
+        for (File f : mods) {
+            String n = f.getName().toLowerCase(Locale.ROOT);
+            if (n.startsWith("sodium") || n.startsWith("iris") || n.startsWith("reeses")
+                    || n.contains("sodium-options") || n.contains("sodium_options")) {
+                Log.i(TAG, "Quitando mod incompatible con móvil: " + f.getName());
+                //noinspection ResultOfMethodCallIgnored
+                f.delete();
+            }
+        }
+    }
+
     private static void createProfile(Context ctx, ModLoader loader) {
+        profileExists(); // migra duplicados a la clave fija
         LauncherProfiles.load();
         MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(PROFILE_KEY);
         if (profile == null) profile = new MinecraftProfile();
         profile.name = "Starlight · Cobblemon";
-        profile.gameDir = "./" + INSTANCE;
+        profile.gameDir = PROFILE_GAMEDIR;
         profile.lastVersionId = loader.getVersionId();
         String icon = logoBase64(ctx);
         if (icon != null) profile.icon = icon;
